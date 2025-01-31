@@ -18,7 +18,7 @@
 # Load the readr package
 
 # ANSWER
-
+library(readr)
 
 ### QUESTION 2 ----- 
 
@@ -42,10 +42,11 @@
 
 # A list of column names are provided to use:
 
-col_names  <-  c("trial_num","speed_actual","speed_response","correct")
+col_names <- c("trial_num","speed_actual","speed_response","correct")
 
 # ANSWER
-
+ds1 <- read_table('data_A/6191_1.txt', skip = 7, col_names = col_names)
+print(ds1)
 
 
 ### QUESTION 3 ----- 
@@ -55,6 +56,9 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 # Then write the new data to a CSV file in the "data_cleaned" folder
 
 # ANSWER
+ds1$trial_num <- ds1$trial_num + 100 
+dir.create("data_cleaned") # I created this folder because I don't see it in this WD
+write.csv(ds1, "data_cleaned/cleaned_data.csv", row.names = FALSE)
 
 
 ### QUESTION 4 ----- 
@@ -63,18 +67,37 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 # Store it to a variable
 
 # ANSWER
-
+files <- list.files('data_A', full.names = TRUE)
+files
 
 ### QUESTION 5 ----- 
 
 # Read all of the files in data_A into a single tibble called ds
 
 # ANSWER
+library(dplyr)
+col_types <- cols(
+  trial_num = col_integer(),
+  speed_actual = col_character(),
+  speed_response = col_character(),
+  correct = col_logical()
+)
+ds <- files %>%
+  lapply(function(file) {
+    file_info <- strsplit(basename(file), "_|\\.")[[1]]
+    participant <- file_info[1]
+    block <- file_info[2]
+    read_table(file, skip = 7, col_names = col_names, col_types = col_types) %>%
+      mutate(participant = participant, block = block)  
+  }) %>%
+  bind_rows() 
+# This code gets me the result I wanted, but I wonder if there is a simpler way?
 
 
 ### QUESTION 6 -----
 
 # Try creating the "add 100" to the trial number variable again
+ds$trial_num <- ds$trial_num + 100 
 # There's an error! Take a look at 6191_5.txt to see why.
 # Use the col_types argument to force trial number to be an integer "i"
 # You might need to check ?read_tsv to see what options to use for the columns
@@ -83,6 +106,7 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 # (It should work now, but you'll see a warning because of the erroneous data point)
 
 # ANSWER
+# I actually accounted for this in the previous question in lines 79-84
 
 
 ### QUESTION 7 -----
@@ -93,6 +117,10 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 # Re-import the data so that filename becomes a column
 
 # ANSWER
+# I actually did some of this in line 91 because I recognized that we would not have the ptc/block info
+ds <- ds %>%
+mutate(filename = rep(files, each = 20)) 
+
 
 
 ### QUESTION 8 -----
@@ -102,4 +130,24 @@ col_names  <-  c("trial_num","speed_actual","speed_response","correct")
 # There are two sheets of data -- import each one into a new tibble
 
 # ANSWER
+install.packages("readxl")
+library(readxl)
+
+files <- list.files('data_B', pattern = "\\.xlsx$", full.names = TRUE)
+sheets_data <- list()
+for (file in files) {
+  sheet_names <- excel_sheets(file)
+  for (sheet in sheet_names) {
+    tibble_name <- paste0(tools::file_path_sans_ext(basename(file)), "_", sheet)
+    sheets_data[[tibble_name]] <- read_excel(file, sheet = sheet)
+  }
+}
+print(names(sheets_data))
+
+for (name in names(sheets_data)) {
+  assign(name, sheets_data[[name]], envir = .GlobalEnv)
+}
+ptc <- participant_info_participant
+testdate <- participant_info_testdate
+
 
