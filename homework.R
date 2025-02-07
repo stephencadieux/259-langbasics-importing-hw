@@ -95,8 +95,9 @@ ds <- files %>%
 # This code gets me the result I wanted, but I wonder if there is a simpler way?
 
 #MComment: It should be that you can just call files (which you made in Q4) and use the same read_tsv as Q2
-#Key: ds <- read_tsv(fnames, skip = 7, col_names = col_names) ##you'd replace fnames with files
-      #if this didn't work before, it may be because you didn't use "" for Q4 around "data_A" - I am unsure the exact difference between "" and ''
+#Key: 
+ds <- read_tsv(fnames, skip = 7, col_names = col_names) ##you'd replace fnames with files
+      #if this doesn't work, it may be because you didn't use "" for Q4 around "data_A" - I am unsure the exact difference between "" and ''
 
 
 ### QUESTION 6 -----
@@ -114,8 +115,9 @@ ds$trial_num <- ds$trial_num + 100
 # I actually accounted for this in the previous question in lines 79-84
 
 #MComment: see the key answer below for an alternate approach
-#key: ds <- read_tsv(fnames, skip = 7, col_names = col_names, col_types = "iccl")
-      #ds$trial_num_100 <- ds$trial_num + 100
+#Key: 
+ds <- read_tsv(fnames, skip = 7, col_names = col_names, col_types = "iccl")
+ds$trial_num_100 <- ds$trial_num + 100
 
 ### QUESTION 7 -----
 
@@ -130,7 +132,8 @@ ds <- ds %>%
 mutate(filename = rep(files, each = 20)) 
 
 #MComment: see the key answer below for an alternate approach
-#key: ds <- read_tsv(fnames, skip = 7, col_names = col_names, col_types = "iccl", id = "filename")
+#key: 
+ds <- read_tsv(fnames, skip = 7, col_names = col_names, col_types = "iccl", id = "filename")
 
 ### QUESTION 8 -----
 
@@ -160,5 +163,6 @@ ptc <- participant_info_participant
 testdate <- participant_info_testdate
 
 #MComment: Your approach above doesn't seem to use the readxl package? See alternative below 
-#key: ppt_info <- read_xlsx("data_B/participant_info.xlsx")
-      #test_dates <- read_xlsx("data_B/participant_info.xlsx", col_names = c("participant", "test_date"), sheet = 2)
+#key: 
+ppt_info <- read_xlsx("data_B/participant_info.xlsx")
+test_dates <- read_xlsx("data_B/participant_info.xlsx", col_names = c("participant", "test_date"), sheet = 2)
